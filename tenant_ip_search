@@ -1,0 +1,28 @@
+let suspicious_ips = dynamic([
+    "0.0.0.0",
+    "1.1.1.1"
+]);
+let timeframe = 180d;
+union *
+| where TimeGenerated > ago(timeframe)
+| where 
+    IPAddress in (suspicious_ips) or
+    SourceIP in (suspicious_ips) or
+    DestinationIP in (suspicious_ips) or
+    RemoteIP in (suspicious_ips) or
+    ClientIP in (suspicious_ips)
+| extend 
+    DetailedLocation = strcat(
+        "Source: ", coalesce(SourceIP, ClientIP, IPAddress, "N/A"),
+        " Destination: ", coalesce(DestinationIP, RemoteIP, "N/A")
+    )
+| project
+    TimeGenerated,
+    Type,
+    Operation,
+    DetailedLocation,
+    AccountName,
+    UserPrincipalName,
+    Computer,
+    ResourceId
+| sort by TimeGenerated desc
