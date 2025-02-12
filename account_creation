@@ -1,0 +1,5 @@
+AuditLogs
+| where OperationName == "Add user"
+| extend NewUser = tostring(TargetResources[0].userPrincipalName)  //get UPN from TargetResources
+| project TimeGenerated, InitiatedBy, NewUser, ResultDescription
+| order by TimeGenerated desc
